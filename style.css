@@ -1,0 +1,93 @@
+:root {
+    --bg-color: #1a1a2e;
+    --text-color: #e2e2e2;
+    --circle-color: #0f3460;
+    --circle-glow: rgba(15, 52, 96, 0.5);
+    --btn-bg: #e94560;
+    --btn-hover: #ff5775;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    text-align: center;
+}
+
+h1 {
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.instruction {
+    font-size: 1.2rem;
+    min-height: 24px;
+    margin-bottom: 40px;
+    transition: opacity 0.3s ease;
+}
+
+.circle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    margin-bottom: 40px;
+}
+
+.circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background-color: var(--circle-color);
+    box-shadow: 0 0 20px var(--circle-glow);
+    transition: transform 4s linear; /* Default transition, overwritten in JS */
+}
+
+.circle.grow {
+    transform: scale(2);
+}
+
+.circle.shrink {
+    transform: scale(1);
+}
+
+.controls button {
+    background-color: var(--btn-bg);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    margin: 0 10px;
+    border-radius: 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.controls button:hover {
+    background-color: var(--btn-hover);
+}
+
+.controls button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.settings {
+    margin-top: 30px;
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+.settings label {
+    cursor: pointer;
+}

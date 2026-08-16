@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meditation Breathing</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <select id="method-select" style="font-size: 2rem; border: none; background: transparent; color: inherit; appearance: none; text-align: center; cursor: pointer; outline: none; border-bottom: 2px solid rgba(255,255,255,0.2);">
+                <option value="box" style="color: black;">Box Breathing (4-4-4-4)</option>
+                <option value="478" style="color: black;">Relaxing Breath (4-7-8)</option>
+                <option value="equal" style="color: black;">Equal Breathing (5-5)</option>
+            </select>
+        </h1>
+        <p class="instruction" id="instruction">Press Start to begin</p>
+        
+        <div class="circle-container">
+            <div class="circle" id="circle"></div>
+        </div>
+        
+        <div class="timer-section">
+            <label>
+                Duration: <input type="number" id="duration-input" min="1" max="60" value="5" style="width: 50px;"> min
+            </label>
+            <div id="timer-display" style="font-size: 1.5rem; margin-top: 10px; font-variant-numeric: tabular-nums;">05:00</div>
+        </div>
+
+        <div class="controls" style="margin-top: 20px;">
+            <button id="start-btn">Start</button>
+            <button id="stop-btn" disabled>Stop</button>
+        </div>
+
+        <div class="settings">
+            <label>
+                <input type="checkbox" id="sound-toggle" checked>
+                Enable Audio Cues
+            </label>
+            <br><br>
+            <label>
+                Cue Type:
+                <select id="sound-type">
+                    <option value="tone">Tone</option>
+                    <option value="voice">Voice</option>
+                </select>
+            </label>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
