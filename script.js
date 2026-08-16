@@ -23,6 +23,39 @@ let timerInterval;
 let timeoutIds = [];
 let audioCtx = null;
 let remainingSeconds = 0;
+let wakeLock = null;
+
+// Request Screen Wake Lock
+async function requestWakeLock() {
+    if ('wakeLock' in navigator) {
+        try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            wakeLock.addEventListener('release', () => {
+                console.log('Screen Wake Lock released');
+            });
+            console.log('Screen Wake Lock acquired');
+        } catch (err) {
+            console.error(`${err.name}, ${err.message}`);
+        }
+    }
+}
+
+// Release Screen Wake Lock
+function releaseWakeLock() {
+    if (wakeLock !== null) {
+        wakeLock.release()
+            .then(() => {
+                wakeLock = null;
+            });
+    }
+}
+
+// Re-request wake lock if tab becomes visible again while running
+document.addEventListener('visibilitychange', async () => {
+    if (wakeLock !== null && document.visibilityState === 'visible' && isRunning) {
+        await requestWakeLock();
+    }
+});
 
 // Initialize Web Audio API
 function initAudio() {
@@ -162,6 +195,7 @@ function breathAnimation() {
 
 function startBreathing() {
     initAudio();
+    requestWakeLock();
     isRunning = true;
     startBtn.disabled = true;
     stopBtn.disabled = false;
@@ -186,6 +220,7 @@ function startBreathing() {
 }
 
 function stopBreathing(completed = false) {
+    releaseWakeLock();
     isRunning = false;
     startBtn.disabled = false;
     stopBtn.disabled = true;
