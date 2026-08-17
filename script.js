@@ -134,6 +134,14 @@ function updateTimerDisplay() {
     timerDisplay.innerText = `${minutes}:${seconds}`;
 }
 
+let availableVoices = [];
+if (window.speechSynthesis) {
+    availableVoices = window.speechSynthesis.getVoices();
+    window.speechSynthesis.onvoiceschanged = () => {
+        availableVoices = window.speechSynthesis.getVoices();
+    };
+}
+
 // Speak text for voice cues
 function speakText(text) {
     if (!soundToggle.checked || soundType.value !== 'voice') return;
@@ -141,7 +149,20 @@ function speakText(text) {
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.0;
+        
+        // Make the voice slower and slightly lower in pitch for a calming effect
+        utterance.rate = 0.65; 
+        utterance.pitch = 0.8; 
+        
+        // Try to pick a high-quality/gentle voice if available (e.g., Samantha on Mac)
+        if (availableVoices.length > 0) {
+            const calmVoice = availableVoices.find(v => v.name.includes('Samantha') || v.name.includes('Victoria')) 
+                           || availableVoices.find(v => v.lang.startsWith('en'));
+            if (calmVoice) {
+                utterance.voice = calmVoice;
+            }
+        }
+        
         window.speechSynthesis.speak(utterance);
     }
 }
