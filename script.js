@@ -18,9 +18,8 @@ let currentMethod = methods.box;
 let totalCycleTime = currentMethod.inhale + currentMethod.hold1 + currentMethod.exhale + currentMethod.hold2;
 
 let isRunning = false;
-let cycleInterval;
 let timerInterval;
-let timeoutIds = [];
+let phaseTimeout = null;
 let audioCtx = null;
 let remainingSeconds = 0;
 let wakeLock = null;
@@ -123,8 +122,10 @@ function playBell() {
 }
 
 function clearTimeouts() {
-    timeoutIds.forEach(id => clearTimeout(id));
-    timeoutIds = [];
+    if (phaseTimeout !== null) {
+        clearTimeout(phaseTimeout);
+        phaseTimeout = null;
+    }
 }
 
 function updateTimerDisplay() {
@@ -154,42 +155,42 @@ function playCue(type, text, frequency, duration) {
     }
 }
 
-function breathAnimation() {
+function playPhase(phaseName) {
     if (!isRunning) return;
 
-    // Inhale
-    instruction.innerText = 'Inhale...';
-    circle.style.transition = `transform ${currentMethod.inhale}ms linear`;
-    circle.classList.add('grow');
-    circle.classList.remove('shrink');
-    playCue('inhale', 'Inhale', 300, 0.5);
-
-    // Hold 1
-    if (currentMethod.hold1 > 0) {
-        timeoutIds.push(setTimeout(() => {
-            if (!isRunning) return;
-            instruction.innerText = 'Hold...';
-            playCue('hold', 'Hold', 400, 0.2);
-        }, currentMethod.inhale));
-    }
-
-    // Exhale
-    timeoutIds.push(setTimeout(() => {
-        if (!isRunning) return;
+    if (phaseName === 'inhale') {
+        instruction.innerText = 'Inhale...';
+        circle.style.transition = `transform ${currentMethod.inhale}ms linear`;
+        circle.classList.add('grow');
+        circle.classList.remove('shrink');
+        playCue('inhale', 'Inhale', 300, 0.5);
+        
+        let nextPhase = currentMethod.hold1 > 0 ? 'hold1' : 'exhale';
+        phaseTimeout = setTimeout(() => playPhase(nextPhase), currentMethod.inhale);
+        
+    } else if (phaseName === 'hold1') {
+        instruction.innerText = 'Hold...';
+        playCue('hold', 'Hold', 400, 0.2);
+        
+        let nextPhase = 'exhale';
+        phaseTimeout = setTimeout(() => playPhase(nextPhase), currentMethod.hold1);
+        
+    } else if (phaseName === 'exhale') {
         instruction.innerText = 'Exhale...';
         circle.style.transition = `transform ${currentMethod.exhale}ms linear`;
         circle.classList.remove('grow');
         circle.classList.add('shrink');
         playCue('exhale', 'Exhale', 300, 0.5);
-    }, currentMethod.inhale + currentMethod.hold1));
-
-    // Hold 2
-    if (currentMethod.hold2 > 0) {
-        timeoutIds.push(setTimeout(() => {
-            if (!isRunning) return;
-            instruction.innerText = 'Hold...';
-            playCue('hold', 'Hold', 400, 0.2);
-        }, currentMethod.inhale + currentMethod.hold1 + currentMethod.exhale));
+        
+        let nextPhase = currentMethod.hold2 > 0 ? 'hold2' : 'inhale';
+        phaseTimeout = setTimeout(() => playPhase(nextPhase), currentMethod.exhale);
+        
+    } else if (phaseName === 'hold2') {
+        instruction.innerText = 'Hold...';
+        playCue('hold', 'Hold', 400, 0.2);
+        
+        let nextPhase = 'inhale';
+        phaseTimeout = setTimeout(() => playPhase(nextPhase), currentMethod.hold2);
     }
 }
 
@@ -215,8 +216,7 @@ function startBreathing() {
         }
     }, 1000);
     
-    breathAnimation();
-    cycleInterval = setInterval(breathAnimation, totalCycleTime);
+    playPhase('inhale');
 }
 
 function stopBreathing(completed = false) {
@@ -227,7 +227,6 @@ function stopBreathing(completed = false) {
     methodSelect.disabled = false;
     durationInput.disabled = false;
     
-    clearInterval(cycleInterval);
     clearInterval(timerInterval);
     clearTimeouts();
     
