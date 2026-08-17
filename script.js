@@ -89,35 +89,40 @@ function playTone(frequency, duration) {
     oscillator.stop(audioCtx.currentTime + duration);
 }
 
-// Play a bell sound to indicate completion
+// Play a singing bowl (缽聲) sound to indicate completion
 function playBell() {
     if (!audioCtx) initAudio();
     
-    // Base frequency for bell
-    const baseFreq = 400;
+    // Singing bowls have a lower base frequency and a long, resonating decay
+    const baseFreq = 175; // Lower pitch for a grounding bowl sound
     
-    // Create multiple oscillators for harmonics
-    const harmonics = [1, 1.2, 1.5, 2];
+    // Inharmonic overtone series typical of metallic bowls
+    const harmonics = [
+        { mult: 1, gain: 1.0, decay: 12 },     // Fundamental (longest decay)
+        { mult: 2.76, gain: 0.6, decay: 8 },   // First overtone
+        { mult: 5.4, gain: 0.4, decay: 5 },    // Second overtone
+        { mult: 8.93, gain: 0.2, decay: 3 }    // High shimmer
+    ];
     
-    harmonics.forEach(mult => {
+    harmonics.forEach(harmonic => {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         
-        osc.type = 'sine';
-        osc.frequency.value = baseFreq * mult;
+        osc.type = 'sine'; // Sine waves are best for pure singing bowl resonance
+        osc.frequency.value = baseFreq * harmonic.mult;
         
-        // Attack
+        // Soft attack (felt mallet strike)
         gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.5 / harmonics.length, audioCtx.currentTime + 0.05);
+        gain.gain.linearRampToValueAtTime(0.6 * harmonic.gain, audioCtx.currentTime + 0.1);
         
-        // Decay
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 4);
+        // Long, smooth resonating decay
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + harmonic.decay);
         
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         
         osc.start();
-        osc.stop(audioCtx.currentTime + 4);
+        osc.stop(audioCtx.currentTime + harmonic.decay);
     });
 }
 
